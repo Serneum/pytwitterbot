@@ -25,11 +25,15 @@ GITHUB_TOKEN = parser.get('github', 'token')
 allowedPhrases = [
   "shit",
   "bathroom",
-  "toilet"
+  "toilet",
+  "bowel",
+  "fart",
+  "gastro"
 ];
 
 avoidPhrases = [
-  "Merge pull request"
+  "Merge pull request",
+  "farther"
 ];
 
 lastTweet = ""
