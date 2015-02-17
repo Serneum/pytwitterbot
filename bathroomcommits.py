@@ -63,9 +63,7 @@ def sendTweets(tweets):
 
 # Look for commits
 def poll():
-  t = threading.Timer(60.0, poll)
-  t.daemon = True
-  t.start()
+  threading.Timer(5.0, poll).start()
 
   print "Looking for commits..."
   tweets = []
