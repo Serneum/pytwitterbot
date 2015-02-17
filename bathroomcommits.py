@@ -56,8 +56,6 @@ headers = {
 
 basicAuth = HTTPBasicAuth(GITHUB_TOKEN, "x-oauth-basic")
 
-lastMessage = ""
-
 # Helper Methods
 def getCommitInfo(url):
   r = requests.get(url, headers=headers, auth=basicAuth)
@@ -84,6 +82,7 @@ def shortenUrl(url):
   return "/".join([git_io_url, r.text])
 
 def sendTweets(tweets):
+  global lastMessage
   for tweet in tweets:
     message = " ".join([tweet['message'], tweet['url']])
     if lastMessage != message:
