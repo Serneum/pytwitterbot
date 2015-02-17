@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import tweepy, time, sys, requests, json, re, threading, logging
+from requests.auth import HTTPBasicAuth
 from ConfigParser import SafeConfigParser
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,20 @@ headers = {
   "ETag": "a18c3bded88eb5dbb5c849a489412bf3"
 }
 
+basicAuth = HTTPBasicAuth(GITHUB_TOKEN, "x-oauth-basic")
+
 # Helper Methods
+def getCommitInfo(url):
+  r = requests.get(url, headers=headers, auth=basicAuth)
+  json = r.json()
+  message = json['commit']['message']
+  htmlUrl = json['html_url']
+  tweet = {
+    "url": shortenUrl(htmlUrl),
+    "message": message
+  }
+  return tweet
+
 def checkCommit(message):
   allowedPhraseFound = re.search("|".join(allowedPhrases), message, re.I|re.M)
   avoidPhraseFound = re.search("|".join(avoidPhrases), message, re.I|re.M)
@@ -65,7 +79,7 @@ def sendTweets(tweets):
   for tweet in tweets:
     message = " ".join([tweet['message'], tweet['url']])
     logger.info("Sending tweet " + message)
-    api.update_status(message)
+    api.update_status(status=message)
 
 # Look for commits
 def poll():
@@ -73,24 +87,20 @@ def poll():
   threading.Timer(5.0, poll).start()
   logger.debug("Looking for commits...")
   tweets = []
-  r = requests.get(events_url, headers=headers, auth=(GITHUB_TOKEN, "x-oauth-basic"))
+  r = requests.get(events_url, headers=headers, auth=basicAuth)
   # Find all push events
   indices = [i for i, x in enumerate(r.json()) if x['type'] == "PushEvent"]
   for i in indices:
-    json = r.json()[i]
     # Read the commits in the push event
-    for commit in json['payload']['commits']:
+    for commit in r.json()[i]['payload']['commits']:
       message = commit['message']
       # Check if the commit message meets the requirements
       if checkCommit(message):
         # Generate tweet object
-        html_url = json['html_url']
-        logger.debug("Found commit that meets criteria. URL: " + html_url)
+        url = commit['url']
+        logger.debug("Found commit that meets criteria. URL: " + url)
         logger.debug("Commit message: " + message)
-        tweet = {
-          "url": shortenUrl(json['html_url']),
-          "message": message
-        }
+        tweet = getCommitInfo(url)
         tweets.append(tweet)
   logger.debug("Sending out tweets.")
   sendTweets(tweets)
