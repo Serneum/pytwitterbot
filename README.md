@@ -4,7 +4,18 @@ https://twitter.com/bathroomcommits
 
 This is a simple Twitter bot that is currently set to post any "bathroom" commits it happens to come across.
 
-To run, `sudo apt-get install python-pip`, then `pip install tweepy`, and then `python bathroomcommits.py`.
+## Requirements
+
+The Bathroom Commits Twitter bot requires Tweepy to run. You can get Tweepy from pip.
+
+```
+sudo apt-get install python-pip
+pip install tweepy
+```
+
+## Running Bathroom Commits
+
+`python bathroomcommits.py`.
 
 ## Settings
 
