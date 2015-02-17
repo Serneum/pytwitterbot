@@ -38,7 +38,7 @@ avoidPhrases = [
   "naoshita"
 ];
 
-lastTweet = ""
+lastMessage = ""
 
 # Connect to Twitter
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
