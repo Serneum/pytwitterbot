@@ -85,8 +85,8 @@ def shortenUrl(url):
 
 def sendTweets(tweets):
   for tweet in tweets:
+    message = " ".join([tweet['message'], tweet['url']])
     if lastMessage != message:
-      message = " ".join([tweet['message'], tweet['url']])
       lastMessage = message
       logger.info("Sending tweet " + message)
       api.update_status(status=message)
