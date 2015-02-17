@@ -33,7 +33,9 @@ allowedPhrases = [
 
 avoidPhrases = [
   "Merge pull request",
-  "farther"
+  "farther",
+  "shitake",
+  "naoshita"
 ];
 
 lastTweet = ""
@@ -54,11 +56,13 @@ headers = {
 
 basicAuth = HTTPBasicAuth(GITHUB_TOKEN, "x-oauth-basic")
 
+lastMessage = ""
+
 # Helper Methods
 def getCommitInfo(url):
   r = requests.get(url, headers=headers, auth=basicAuth)
   json = r.json()
-  message = json['commit']['message']
+  message = json['commit']['message']  
   htmlUrl = json['html_url']
   tweet = {
     "url": shortenUrl(htmlUrl),
@@ -81,9 +85,11 @@ def shortenUrl(url):
 
 def sendTweets(tweets):
   for tweet in tweets:
-    message = " ".join([tweet['message'], tweet['url']])
-    logger.info("Sending tweet " + message)
-    api.update_status(status=message)
+    if lastMessage != message:
+      message = " ".join([tweet['message'], tweet['url']])
+      lastMessage = message
+      logger.info("Sending tweet " + message)
+      api.update_status(status=message)
 
 # Look for commits
 def poll():
