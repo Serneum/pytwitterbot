@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import tweepy, time, sys, requests, json, re, threading
+import tweepy, time, sys, requests, json, re, threading, logging
 from ConfigParser import SafeConfigParser
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler('bathroomcommits.log')
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 parser = SafeConfigParser()
 parser.read('bathroomcommits.ini')
@@ -58,14 +64,14 @@ def shortenUrl(url):
 def sendTweets(tweets):
   for tweet in tweets:
     message = " ".join([tweet['message'], tweet['url']])
-    print "Sending tweet " + message
+    logger.info("Sending tweet " + message)
     api.update_status(message)
 
 # Look for commits
 def poll():
+  logger.debug("Starting commit check thread.")
   threading.Timer(5.0, poll).start()
-
-  print "Looking for commits..."
+  logger.debug("Looking for commits...")
   tweets = []
   r = requests.get(events_url, headers=headers, auth=(GITHUB_TOKEN, "x-oauth-basic"))
   # Find all push events
@@ -78,11 +84,16 @@ def poll():
       # Check if the commit message meets the requirements
       if checkCommit(message):
         # Generate tweet object
+        html_url = json['html_url']
+        logger.debug("Found commit that meets criteria. URL: " + html_url)
+        logger.debug("Commit message: " + message)
         tweet = {
           "url": shortenUrl(json['html_url']),
           "message": message
         }
         tweets.append(tweet)
+  logger.debug("Sending out tweets.")
   sendTweets(tweets)
 
 poll()
+
