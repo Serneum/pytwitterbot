@@ -84,11 +84,13 @@ def shortenUrl(url):
 def sendTweets(tweets):
   global lastMessage
   for tweet in tweets:
-    message = " ".join([tweet['message'], tweet['url']])
-    if lastMessage != message:
-      lastMessage = message
-      logger.info("Sending tweet " + message)
-      api.update_status(status=message)
+    commitMessage = tweet['message']
+    tweetMessage = " ".join([commitMessage, tweet['url']])
+    # Ideally this will become some sort of set of commit URLs (before shortening) and it can be stored in and read from a file
+    if lastMessage != commitMessage:
+      lastMessage = commitMessage
+      logger.info("Sending tweet " + tweetMessage)
+      api.update_status(status=tweetMessage)
 
 # Look for commits
 def poll():
