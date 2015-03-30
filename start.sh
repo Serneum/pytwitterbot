@@ -1,1 +1,1 @@
-nohup python bathroomcommits.py &
+nohup python twitterbot.py &

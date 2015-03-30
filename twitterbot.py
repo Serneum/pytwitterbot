@@ -11,12 +11,12 @@ from ConfigParser import SafeConfigParser
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler('bathroomcommits.log')
+handler = logging.FileHandler('twitterbot.log')
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
 parser = SafeConfigParser()
-parser.read('bathroomcommits.ini')
+parser.read('twitterbot.ini')
 
 # Required keys/tokens to access Twitter and GitHub
 CONSUMER_KEY = parser.get('twitter', 'consumer.key')
@@ -24,36 +24,14 @@ CONSUMER_SECRET = parser.get('twitter', 'consumer.secret')
 ACCESS_KEY = parser.get('twitter', 'access.key')
 ACCESS_SECRET = parser.get('twitter', 'access.secret')
 GITHUB_TOKEN = parser.get('github', 'token')
+USER_AGENT = parser.get('bot', 'user.agent')
+ETAG = parser.get('bot', 'etag')
 
 # Configuration info
-allowedPhrases = [
-    "shit",
-    ":shit:",
-    "shite",
-    "shitty",
-    "shitastic",
-    "shittastic",
-    "shit-tastic",
-    "shitload",
-    "bathroom",
-    "toilet",
-    "bowel",
-    "fart",
-    "fuckingshit",
-    "bullshit",
-    "horseshit"
-]
-
-avoidPhrases = [
-    "Merge",
-    "pull request"
-]
-
-wordBoundary = "\\b"
-allowedPhrases = [wordBoundary + phrase + wordBoundary for phrase in allowedPhrases]
-avoidPhrases = [wordBoundary + phrase + wordBoundary for phrase in avoidPhrases]
-
-lastMessage = ""
+word_boundary = "\\b"
+allowed_phrases = []
+avoid_phrases = []
+last_message = ""
 
 # Connect to Twitter
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
@@ -65,8 +43,8 @@ git_io_url = "https://git.io"
 events_url = "https://api.github.com/events"
 
 headers = {
-    "User-Agent": "bathroomcommits",
-    "ETag": "a18c3bded88eb5dbb5c849a489412bf3"
+    "User-Agent": USER_AGENT,
+    "ETag": ETAG
 }
 
 basicAuth = HTTPBasicAuth(GITHUB_TOKEN, "x-oauth-basic")
@@ -86,8 +64,8 @@ def get_commit_info(url):
 
 
 def check_commit(message):
-    allowed_phrase_found = re.search("|".join(allowedPhrases), message, re.I | re.M)
-    avoid_phrase_found = re.search("|".join(avoidPhrases), message, re.I | re.M)
+    allowed_phrase_found = re.search("|".join(allowed_phrases), message, re.I | re.M)
+    avoid_phrase_found = re.search("|".join(avoid_phrases), message, re.I | re.M)
     return len(message) < 125 and allowed_phrase_found and not avoid_phrase_found
 
 
@@ -101,14 +79,14 @@ def shorten_url(url):
 
 
 def send_tweets(tweets):
-    global lastMessage
+    global last_message
     for tweet in tweets:
         commit_message = tweet['message']
         tweet_message = " ".join([commit_message, tweet['url']])
         # Ideally this will become some sort of set of commit URLs (before shortening) and it can be
         # stored in and read from a file
-        if lastMessage != commit_message:
-            lastMessage = commit_message
+        if last_message != commit_message:
+            last_message = commit_message
             logger.info("Sending tweet " + tweet_message)
             api.update_status(status=tweet_message)
 
@@ -137,4 +115,21 @@ def poll():
     logger.debug("Sending out tweets.")
     send_tweets(tweets)
 
+
+# Load the allowed/avoid phrases every minute so the bot can be updated on the fly
+def load_config():
+    global allowed_phrases
+    global avoid_phrases
+
+    threading.Timer(1.0, load_config).start()
+    logger.debug("Loading allowed.phrases and avoid.phrases properties")
+    parser.read('twitterbot.ini')
+    allowed_phrases_config = parser.get('bot', 'allowed.phrases').split(',')
+    avoid_phrases_config = parser.get('bot', 'avoid.phrases').split(',')
+
+    allowed_phrases = [word_boundary + phrase.strip() + word_boundary for phrase in allowed_phrases_config]
+    avoid_phrases = [word_boundary + phrase.strip() + word_boundary for phrase in avoid_phrases_config]
+
+
+load_config()
 poll()
