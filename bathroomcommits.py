@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import tweepy, time, sys, requests, json, re, threading, logging
+import tweepy
+import requests
+import re
+import threading
+import logging
 from requests.auth import HTTPBasicAuth
 from ConfigParser import SafeConfigParser
 
@@ -22,31 +26,30 @@ ACCESS_SECRET = parser.get('twitter', 'access.secret')
 GITHUB_TOKEN = parser.get('github', 'token')
 
 # Configuration info
-wordBoundary = "\\b"
-
 allowedPhrases = [
-  "shit",
-  ":shit:",
-  "shite",
-  "shitty",
-  "shitastic",
-  "shittastic",
-  "shit-tastic",
-  "shitload",
-  "bathroom",
-  "toilet",
-  "bowel",
-  "fart",
-  "fuckingshit",
-  "bullshit",
-  "horseshit"
+    "shit",
+    ":shit:",
+    "shite",
+    "shitty",
+    "shitastic",
+    "shittastic",
+    "shit-tastic",
+    "shitload",
+    "bathroom",
+    "toilet",
+    "bowel",
+    "fart",
+    "fuckingshit",
+    "bullshit",
+    "horseshit"
 ]
 
 avoidPhrases = [
-  "Merge",
-  "pull request"
+    "Merge",
+    "pull request"
 ]
 
+wordBoundary = "\\b"
 allowedPhrases = [wordBoundary + phrase + wordBoundary for phrase in allowedPhrases]
 avoidPhrases = [wordBoundary + phrase + wordBoundary for phrase in avoidPhrases]
 
@@ -62,71 +65,76 @@ git_io_url = "https://git.io"
 events_url = "https://api.github.com/events"
 
 headers = {
-  "User-Agent": "bathroomcommits",
-  "ETag": "a18c3bded88eb5dbb5c849a489412bf3"
+    "User-Agent": "bathroomcommits",
+    "ETag": "a18c3bded88eb5dbb5c849a489412bf3"
 }
 
 basicAuth = HTTPBasicAuth(GITHUB_TOKEN, "x-oauth-basic")
 
+
 # Helper Methods
-def getCommitInfo(url):
-  r = requests.get(url, headers=headers, auth=basicAuth)
-  json = r.json()
-  message = json['commit']['message']  
-  htmlUrl = json['html_url']
-  tweet = {
-    "url": shortenUrl(htmlUrl),
-    "message": message
-  }
-  return tweet
+def get_commit_info(url):
+    r = requests.get(url, headers=headers, auth=basicAuth)
+    json = r.json()
+    message = json['commit']['message']
+    html_url = json['html_url']
+    tweet = {
+        "url": shorten_url(html_url),
+        "message": message
+    }
+    return tweet
 
-def checkCommit(message):
-  allowedPhraseFound = re.search("|".join(allowedPhrases), message, re.I|re.M)
-  avoidPhraseFound = re.search("|".join(avoidPhrases), message, re.I|re.M)
-  return len(message) < 125 and allowedPhraseFound and not avoidPhraseFound
 
-def shortenUrl(url):
-  shortenerURL = "/".join([git_io_url, "create"])
-  form = {
-    "url": url
-  }
-  r = requests.post(shortenerURL, data=form)
-  return "/".join([git_io_url, r.text])
+def check_commit(message):
+    allowed_phrase_found = re.search("|".join(allowedPhrases), message, re.I | re.M)
+    avoid_phrase_found = re.search("|".join(avoidPhrases), message, re.I | re.M)
+    return len(message) < 125 and allowed_phrase_found and not avoid_phrase_found
 
-def sendTweets(tweets):
-  global lastMessage
-  for tweet in tweets:
-    commitMessage = tweet['message']
-    tweetMessage = " ".join([commitMessage, tweet['url']])
-    # Ideally this will become some sort of set of commit URLs (before shortening) and it can be stored in and read from a file
-    if lastMessage != commitMessage:
-      lastMessage = commitMessage
-      logger.info("Sending tweet " + tweetMessage)
-      api.update_status(status=tweetMessage)
+
+def shorten_url(url):
+    shortener_url = "/".join([git_io_url, "create"])
+    form = {
+        "url": url
+    }
+    r = requests.post(shortener_url, data=form)
+    return "/".join([git_io_url, r.text])
+
+
+def send_tweets(tweets):
+    global lastMessage
+    for tweet in tweets:
+        commit_message = tweet['message']
+        tweet_message = " ".join([commit_message, tweet['url']])
+        # Ideally this will become some sort of set of commit URLs (before shortening) and it can be
+        # stored in and read from a file
+        if lastMessage != commit_message:
+            lastMessage = commit_message
+            logger.info("Sending tweet " + tweet_message)
+            api.update_status(status=tweet_message)
+
 
 # Look for commits
 def poll():
-  logger.debug("Starting commit check thread.")
-  threading.Timer(5.0, poll).start()
-  logger.debug("Looking for commits...")
-  tweets = []
-  r = requests.get(events_url, headers=headers, auth=basicAuth)
-  # Find all push events
-  indices = [i for i, x in enumerate(r.json()) if x['type'] == "PushEvent"]
-  for i in indices:
-    # Read the commits in the push event
-    for commit in r.json()[i]['payload']['commits']:
-      message = commit['message']
-      # Check if the commit message meets the requirements
-      if checkCommit(message):
-        # Generate tweet object
-        url = commit['url']
-        logger.debug("Found commit that meets criteria. URL: " + url)
-        logger.debug("Commit message: " + message)
-        tweet = getCommitInfo(url)
-        tweets.append(tweet)
-  logger.debug("Sending out tweets.")
-  sendTweets(tweets)
+    logger.debug("Starting commit check thread.")
+    threading.Timer(5.0, poll).start()
+    logger.debug("Looking for commits...")
+    tweets = []
+    r = requests.get(events_url, headers=headers, auth=basicAuth)
+    # Find all push events
+    indices = [i for i, x in enumerate(r.json()) if x['type'] == "PushEvent"]
+    for i in indices:
+        # Read the commits in the push event
+        for commit in r.json()[i]['payload']['commits']:
+            message = commit['message']
+            # Check if the commit message meets the requirements
+            if check_commit(message):
+                # Generate tweet object
+                url = commit['url']
+                logger.debug("Found commit that meets criteria. URL: " + url)
+                logger.debug("Commit message: " + message)
+                tweet = get_commit_info(url)
+                tweets.append(tweet)
+    logger.debug("Sending out tweets.")
+    send_tweets(tweets)
 
 poll()
-
