@@ -22,21 +22,33 @@ ACCESS_SECRET = parser.get('twitter', 'access.secret')
 GITHUB_TOKEN = parser.get('github', 'token')
 
 # Configuration info
+wordBoundary = "\\b"
+
 allowedPhrases = [
   "shit",
+  ":shit:",
+  "shite",
+  "shitty",
+  "shitastic",
+  "shittastic",
+  "shit-tastic",
+  "shitload",
   "bathroom",
   "toilet",
   "bowel",
   "fart",
-  "gastro"
-];
+  "fuckingshit",
+  "bullshit",
+  "horseshit"
+]
 
 avoidPhrases = [
-  "Merge pull request",
-  "farther",
-  "shitake",
-  "naoshita"
-];
+  "Merge",
+  "pull request"
+]
+
+allowedPhrases = [wordBoundary + phrase + wordBoundary for phrase in allowedPhrases]
+avoidPhrases = [wordBoundary + phrase + wordBoundary for phrase in avoidPhrases]
 
 lastMessage = ""
 
