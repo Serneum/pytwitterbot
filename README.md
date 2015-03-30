@@ -2,7 +2,7 @@
 
 Example Bot: https://twitter.com/bathroomcommits
 
-This is a simple Twitter bot that is currently set to read commits from GitHub and tweet any of those commits that meet
+This is a simple Twitter bot that reads commits from GitHub and tweets any of those commits that meet
 certain criteria
 
 ## Requirements
@@ -16,7 +16,7 @@ pip install tweepy
 
 ## Running Twitter Bot
 
-`python twitterbot.py`.
+`./start.sh`
 
 ## Settings
 
@@ -54,8 +54,8 @@ access.secret = <your access secret>
 token = <your GitHub token>
 
 [bot]
-user.agent = bathroomcommits
-etag = a18c3bded88eb5dbb5c849a489412bf3
+user.agent = <your user agent>
+etag = <your ETag>
 allowed.phrases = bathroom, toilet
 avoid.phrases = merge, pull request
 ```
