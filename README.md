@@ -38,6 +38,16 @@ etag =
 allowed.phrases =
 avoid.phrases =
 ```
+#### Twitter
+You can get all of the information you need for the Twitter section of the .ini file at https://dev.twitter.com. You can follow the first half of [this guide](http://www.dototot.com/how-to-write-a-twitter-bot-with-python-and-tweepy/) if you need any help with creating a Twitter application and obtaining the keys. 
+
+#### GitHub
+You can get the GitHub token by creating a new [personal access token](https://github.com/settings/applications).
+
+#### Bot
+Your bot's user agent should be your [username or the name of your application](https://developer.github.com/v3/#user-agent-required).
+
+The [ETag](http://en.wikipedia.org/wiki/HTTP_ETag) is just a unique hash used when making requests.
 
 The allowed.phrases and avoid.phrases properties are comma-separated lists
 
@@ -45,17 +55,17 @@ The allowed.phrases and avoid.phrases properties are comma-separated lists
 
 ```
 [twitter]
-consumer.key = <your consumer key>
-consumer.secret = <your consumer secret>
-access.key = <your access key>
-access.secret = <your access secret>
+consumer.key = abc123
+consumer.secret = abc123
+access.key = abc123
+access.secret = abc123
 
 [github]
-token = <your GitHub token>
+token = abc123
 
 [bot]
-user.agent = <your user agent>
-etag = <your ETag>
+user.agent = bathroomcommits
+etag = d18c3bded99eb5dbb5c849a489412bf5
 allowed.phrases = bathroom, toilet
 avoid.phrases = merge, pull request
 ```
