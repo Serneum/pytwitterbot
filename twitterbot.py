@@ -121,7 +121,7 @@ def load_config():
     global allowed_phrases
     global avoid_phrases
 
-    threading.Timer(1.0, load_config).start()
+    threading.Timer(300.0, load_config).start()
     logger.debug("Loading allowed.phrases and avoid.phrases properties")
     parser.read('twitterbot.ini')
     allowed_phrases_config = parser.get('bot', 'allowed.phrases').split(',')
