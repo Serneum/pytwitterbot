@@ -39,7 +39,7 @@ allowed.phrases =
 avoid.phrases =
 ```
 #### Twitter
-You can get all of the information you need for the Twitter section of the .ini file at https://dev.twitter.com. You can follow the first half of [this guide](http://www.dototot.com/how-to-write-a-twitter-bot-with-python-and-tweepy/) if you need any help with creating a Twitter application and obtaining the keys. 
+You can get all of the information you need for the Twitter section of the .ini file at https://apps.twitter.com. You can follow the first half of [this guide](http://www.dototot.com/how-to-write-a-twitter-bot-with-python-and-tweepy/) if you need any help with creating a Twitter application and obtaining the keys. 
 
 #### GitHub
 You can get the GitHub token by creating a new [personal access token](https://github.com/settings/applications).
