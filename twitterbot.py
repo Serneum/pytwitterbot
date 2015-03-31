@@ -116,7 +116,7 @@ def poll():
     send_tweets(tweets)
 
 
-# Load the allowed/avoid phrases every minute so the bot can be updated on the fly
+# Load the allowed/avoid phrases every five minutes so the bot can be updated on the fly
 def load_config():
     global allowed_phrases
     global avoid_phrases
