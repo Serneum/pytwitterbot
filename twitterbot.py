@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import tweepy
 import requests
 import re
@@ -9,14 +10,17 @@ import logging
 from requests.auth import HTTPBasicAuth
 from ConfigParser import SafeConfigParser
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+logging_file = "/".join([script_dir, 'twitterbot.log'])
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler('twitterbot.log')
+handler = logging.FileHandler(logging_file)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
+ini_file = "/".join([script_dir, 'twitterbot.ini'])
 parser = SafeConfigParser()
-parser.read('twitterbot.ini')
+parser.read(ini_file)
 
 # Required keys/tokens to access Twitter and GitHub
 CONSUMER_KEY = parser.get('twitter', 'consumer.key')
@@ -116,7 +120,7 @@ def poll():
     send_tweets(tweets)
 
 
-# Load the allowed/avoid phrases every five minutes so the bot can be updated on the fly
+# Load the allowed/avoid phrases every minute so the bot can be updated on the fly
 def load_config():
     global allowed_phrases
     global avoid_phrases

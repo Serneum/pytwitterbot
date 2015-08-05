@@ -18,6 +18,28 @@ pip install tweepy
 
 `./start.sh`
 
+#### Automatically Starting Your Bot
+twitterbot.conf is a template Upstart script that can be used in Ubuntu. You need to supply a username and a path to your bot, then move it to /etc/init.
+
+###### Sample Upstart Script
+```
+author "Chris Rees <serneum@gmail.com>"
+description "Upstart Script to start the Python Twitter bot"
+
+#Set username for the process.
+setuid user
+
+start on runlevel [2345]
+stop on runlevel [016]
+
+#Set the base directory for your twitter bot
+env DIR=/opt/twitterbot
+
+respawn
+
+exec python $DIR/twitterbot.py
+```
+
 ## Settings
 
 The format of the `twitterbot.ini` file is as follows:
