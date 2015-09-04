@@ -1,7 +1,3 @@
-# Twitter Bot
-
-Example Bot: https://twitter.com/bathroomcommits
-
 This is a simple Twitter bot that reads commits from GitHub and tweets any of those commits that meet
 certain criteria
 
@@ -91,3 +87,8 @@ etag = d18c3bded99eb5dbb5c849a489412bf5
 allowed.phrases = bathroom, toilet
 avoid.phrases = merge, pull request
 ```
+
+## Example Bots
+[Bathroom Commits](https://twitter.com/bathroomcommits)
+[Swag Commits](https://twitter.com/swagcommits)
+[Brommits](https://twitter.com/brommits)
