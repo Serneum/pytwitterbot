@@ -89,6 +89,6 @@ avoid.phrases = merge, pull request
 ```
 
 ## Example Bots
-[Bathroom Commits](https://twitter.com/bathroomcommits)
-[Swag Commits](https://twitter.com/swagcommits)
+[Bathroom Commits](https://twitter.com/bathroomcommits)  
+[Swag Commits](https://twitter.com/swagcommits)  
 [Brommits](https://twitter.com/brommits)
